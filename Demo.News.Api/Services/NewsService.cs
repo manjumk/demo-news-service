@@ -41,7 +41,6 @@ namespace Demo.News.Api.Services
             else return null;
         }
 
-
         public async Task<List<Story>> GetStories()
         {
             

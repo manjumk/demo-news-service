@@ -3,6 +3,7 @@ using Demo.News.Api.Entities;
 using Demo.News.Api.Services;
 using Demo.News.Api.Wrapper;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
@@ -104,24 +105,26 @@ namespace Demo.News.Api.UnitTests.Services
             actual.Message.Should().Be("Service error");
         }
 
-
         [Fact]
         public async Task GetStories_ValidInputWithCache_ReturnsStories()
         {
             // Arrange
-            var token = "CacheKey";
-            var expected=_fixture.CreateMany<Story>();
-
-            // The below line should actually mock the cache hit scenario, but for some reason it isn't working yet.
-            //_cacheMock.Setup(c => c.TryGetValue(token,out expected)).Returns(true);
-            //_cacheMock.Setup(c => c.CreateEntry(token)).Returns(Mock.Of<ICacheEntry>);
+            var firstStory = _fixture.Create<Story>();
+            var secondStory = _fixture.Create<Story>();
+            var expected = new List<Story>() { firstStory, secondStory };
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProvider = services.BuildServiceProvider();
+            var memoryCache = serviceProvider.GetService<IMemoryCache>();
+            memoryCache.Set("CacheKey", expected);
+            var _sut = new NewsService(_settingsMock.Object, memoryCache, _wrapperMock.Object);
 
             // Act
-            var actual = _sut.GetStories();
-
+            var actualResultFirstCall = _sut.GetStories();
+           
             // Assert
-            var result=actual.Result.Should().BeAssignableTo<List<Story>>();
-            result.Should().BeEquivalentTo(expected);
+            var stories = actualResultFirstCall.Result.Should().BeAssignableTo<List<Story>>().Subject;
+            stories.Should().BeEquivalentTo(expected);
         }
     }
 }
