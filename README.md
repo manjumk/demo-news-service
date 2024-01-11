@@ -11,6 +11,6 @@ Technical Details
 Unit Test Detail
 1. Xunit
 2. Used Auto Fixture and Fluent Assertions libray for arrage and assert
-3. Note - One Unit test is failing in cache scenario
 
-Run Instruction - please run in iisexpress server.
+Run Instruction - 
+1. please run in iisexpress server with port 'http://localhost:5799' so that 'demo-news-web-ui' will work
